@@ -7,6 +7,7 @@ require (
 	github.com/gookit/color v1.5.1
 	github.com/rocket049/gocui v0.3.2
 	github.com/spf13/cobra v1.5.0
+	google.golang.org/protobuf v1.28.1
 )
 
 require (
@@ -27,7 +28,6 @@ require (
 	go.uber.org/multierr v1.6.0 // indirect
 	golang.org/x/net v0.0.0-20220909164309-bea034e7d591 // indirect
 	google.golang.org/genproto v0.0.0-20220915135415-7fd63a7952de // indirect
-	google.golang.org/protobuf v1.28.1 // indirect
 )
 
 require (
@@ -52,7 +52,7 @@ require (
 	github.com/mitchellh/mapstructure v1.5.0 // indirect
 	github.com/nsf/termbox-go v1.1.1 // indirect
 	github.com/nyaruka/phonenumbers v1.0.55 // indirect
-	github.com/panjf2000/ants v1.3.0
+	github.com/panjf2000/ants v1.2.1
 	github.com/pelletier/go-toml v1.9.5 // indirect
 	github.com/prometheus/client_golang v1.12.2
 	github.com/rivo/uniseg v0.2.0 // indirect
