@@ -76,6 +76,7 @@ func doRecv(g *gocui.Gui) {
 }
 
 func quit(g *gocui.Gui, v *gocui.View) error {
+	//关闭聊天、关闭聊天界面
 	chat.Close()
 	ov, _ := g.View("out")
 	buf = ov.Buffer()
@@ -83,6 +84,7 @@ func quit(g *gocui.Gui, v *gocui.View) error {
 	return gocui.ErrQuit
 }
 
+//发送聊天消息
 func doSay(g *gocui.Gui, cv *gocui.View) {
 	v, err := g.View("out")
 	if cv != nil && err == nil {
@@ -94,8 +96,9 @@ func doSay(g *gocui.Gui, cv *gocui.View) {
 				FormUserID: "123213",
 				ToUserID:   "222222",
 				Content:    string(p)}
-			// 先把自己说的话显示到消息流中
+			// 先把自己说的话显示到消息流中-将自己说的话显示在自己的界面中
 			viewPrint(g, "me", msg.Content, false)
+			//发送消息给别人
 			chat.Send(msg)
 		}
 		v.Autoscroll = true
@@ -225,8 +228,12 @@ func pasteDown(g *gocui.Gui, cv *gocui.View) error {
 	return nil
 }
 
+/**
+  客户端入口函数
+*/
 func RunMain() {
 	// step1 创建chat的核心对象
+	//启动聊天服务
 	chat = sdk.NewChat(net.ParseIP("0.0.0.0"), 8900, "logic", "12312321", "2131")
 	// step2 创建 GUI 图层对象并进行参与与回调函数的配置
 	g, err := gocui.NewGui(gocui.OutputNormal)
@@ -237,20 +244,24 @@ func RunMain() {
 	g.Cursor = true
 	g.Mouse = false
 	g.ASCII = false
-	// 设置编排函数
+	// 设置编排函数-设置布局
 	g.SetManagerFunc(layout)
 
-	// 注册回调事件
+	// 注册回调事件。注册函数的出入参是固定好的
+	// 退出聊天
 	if err := g.SetKeybinding("main", gocui.KeyCtrlC, gocui.ModNone, quit); err != nil {
 		log.Panicln(err)
 	}
-
+	//发送消息
 	if err := g.SetKeybinding("main", gocui.KeyEnter, gocui.ModNone, viewUpdate); err != nil {
 		log.Panicln(err)
 	}
+	//todo：下面的四个函数是干什么的
+	//往上翻
 	if err := g.SetKeybinding("main", gocui.KeyPgup, gocui.ModNone, viewUpScroll); err != nil {
 		log.Panicln(err)
 	}
+	//往下翻
 	if err := g.SetKeybinding("main", gocui.KeyPgdn, gocui.ModNone, viewDownScroll); err != nil {
 		log.Panicln(err)
 	}

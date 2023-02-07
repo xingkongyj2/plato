@@ -38,7 +38,11 @@ type Message struct {
 	Session    string
 }
 
+/**
+创建服务聊天服务
+*/
 func NewChat(ip net.IP, port int, nick, userID, sessionID string) *Chat {
+	//初始化Chat对象
 	chat := &Chat{
 		Nick:             nick,
 		UserID:           userID,
@@ -86,8 +90,10 @@ func (chat *Chat) Recv() <-chan *Message {
 }
 
 func (chat *Chat) loop() {
-Loop:
+
+Loop: //goto语句
 	for {
+		//select就是用来监听和channel有关的IO操作，当 IO 操作发生时，触发相应的动作
 		select {
 		case <-chat.closeChan:
 			return
