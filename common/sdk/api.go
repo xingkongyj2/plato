@@ -20,10 +20,13 @@ const (
 )
 
 type Chat struct {
-	Nick             string
-	UserID           string
-	SessionID        string
-	conn             *connect
+	//用户名
+	Nick      string
+	UserID    string
+	SessionID string
+	//用户的IP、Port
+	conn *connect
+	//传递关闭连接的管道
 	closeChan        chan struct{}
 	MsgClientIDTable map[string]uint64
 	sync.RWMutex
@@ -41,6 +44,7 @@ type Message struct {
 /**
 创建服务聊天服务
 */
+//todo：
 func NewChat(ip net.IP, port int, nick, userID, sessionID string) *Chat {
 	//初始化Chat对象
 	chat := &Chat{
@@ -89,14 +93,16 @@ func (chat *Chat) Recv() <-chan *Message {
 	return chat.conn.recv()
 }
 
+//todo
 func (chat *Chat) loop() {
-
 Loop: //goto语句
 	for {
 		//select就是用来监听和channel有关的IO操作，当 IO 操作发生时，触发相应的动作
 		select {
+		// 如果chan1成功读到数据，则进行该case处理语句
 		case <-chat.closeChan:
 			return
+		//
 		default:
 			mc := &message.MsgCmd{}
 			data, err := tcp.ReadData(chat.conn.conn)
@@ -113,7 +119,6 @@ Loop: //goto语句
 				msg = handAckMsg(chat.conn, mc.Payload)
 			case message.CmdType_Push:
 				msg = handPushMsg(chat.conn, mc.Payload)
-
 			}
 			chat.conn.recvChan <- msg
 		}
