@@ -17,6 +17,7 @@ type Response struct {
 
 // GetIpInfoList API 适配应用层
 func GetIpInfoList(c context.Context, ctx *app.RequestContext) {
+	//捕捉异常。在这里不捕捉异常只会使本次调用错误，不会导致整个ip configÍ奔溃
 	defer func() {
 		if err := recover(); err != nil {
 			ctx.JSON(consts.StatusBadRequest, utils.H{"err": err})

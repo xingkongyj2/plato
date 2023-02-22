@@ -11,6 +11,7 @@ var (
 	ConfigPath string
 )
 
+// 初始化是要先执行的
 func init() {
 	cobra.OnInitialize(initConfig)
 	rootCmd.PersistentFlags().StringVar(&ConfigPath, "config", "./plato.yaml", "config file (default is ./plato.yaml)")
@@ -19,7 +20,8 @@ func init() {
 var rootCmd = &cobra.Command{
 	Use:   "plato",
 	Short: "这是一个超牛逼的IM系统",
-	Run:   Plato,
+	//加了下面的代码就按自己定义的展示，没有加就显示默认的方式。
+	//Run:   Plato,
 }
 
 func Execute() {

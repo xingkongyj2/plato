@@ -12,6 +12,7 @@ type Dispatcher struct {
 	sync.RWMutex
 }
 
+// dp是一个调度器，是一个全局的，要注意并发问题。
 var dp *Dispatcher
 
 func Init() {
@@ -54,6 +55,7 @@ func Dispatch(ctx *IpConfConext) []*Endport {
 }
 
 func (dp *Dispatcher) getCandidateEndport(ctx *IpConfConext) []*Endport {
+	//这里加了读锁，可以优化
 	dp.RLock()
 	defer dp.RUnlock()
 	candidateList := make([]*Endport, 0, len(dp.candidateTable))

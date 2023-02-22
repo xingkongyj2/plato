@@ -38,7 +38,7 @@ require (
 	github.com/cloudwego/netpoll v0.2.4 // indirect
 	github.com/coreos/go-semver v0.3.0 // indirect
 	github.com/fsnotify/fsnotify v1.5.4 // indirect
-	github.com/goccy/go-json v0.9.7 // indirect
+	github.com/goccy/go-json v0.9.7
 	github.com/gogo/protobuf v1.3.2 // indirect
 	github.com/golang/protobuf v1.5.2
 	github.com/hashicorp/hcl v1.0.0 // indirect

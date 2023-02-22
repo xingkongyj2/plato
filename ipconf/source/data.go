@@ -20,20 +20,24 @@ func Init() {
 	}
 }
 
+// 调用commom里面的discovery
 // 服务发现处理
 func DataHandler(ctx *context.Context) {
 	dis := discovery.NewServiceDiscovery(ctx)
 	defer dis.Close()
+	//闭包函数，添加节点
 	setFunc := func(key, value string) {
 		if ed, err := discovery.UnMarshal([]byte(value)); err == nil {
 			if event := NewEvent(ed); ed != nil {
 				event.Type = AddNodeEvent
+				//生产端s
 				eventChan <- event
 			}
 		} else {
 			logger.CtxErrorf(*ctx, "DataHandler.setFunc.err :%s", err.Error())
 		}
 	}
+	//删除节点
 	delFunc := func(key, value string) {
 		if ed, err := discovery.UnMarshal([]byte(value)); err == nil {
 			if event := NewEvent(ed); ed != nil {

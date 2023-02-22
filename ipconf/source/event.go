@@ -19,6 +19,7 @@ const (
 	DelNodeEvent EventType = "delNode"
 )
 
+// 存放我们要统计的数值
 type Event struct {
 	Type         EventType
 	IP           string

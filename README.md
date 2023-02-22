@@ -3,14 +3,19 @@
 https://hardcore.feishu.cn/wiki/wikcnRfpMp8DUAxp8AtKAEF7Hng
 
 
+
+
 编译：go bulid
+
+
+
 
 # 命令行
 客户端：./plato client
 
-*网关：./plato gateway
-
 *配置ip：./plato ipconf
+
+*网关：./plato gateway
 
 perf：./plato perf
 
