@@ -9,6 +9,7 @@ import (
 )
 
 func Init() {
+	//eventChan是一个全局变量，存放统计的数据
 	eventChan = make(chan *Event)
 	ctx := context.Background()
 	go DataHandler(&ctx)
@@ -23,6 +24,7 @@ func Init() {
 // 调用commom里面的discovery
 // 服务发现处理
 func DataHandler(ctx *context.Context) {
+	//ip config是etcd中的服务发现，拿到gateway统计的数据，进行负载均衡
 	dis := discovery.NewServiceDiscovery(ctx)
 	defer dis.Close()
 	//闭包函数，添加节点
