@@ -6,7 +6,9 @@ import (
 	"github.com/cloudwego/hertz/pkg/app"
 )
 
+// 封装了3种Conext
 type IpConfConext struct {
+	//原始Hertz的Conext
 	Ctx       *context.Context
 	AppCtx    *app.RequestContext
 	ClinetCtx *ClientConext

@@ -6,6 +6,7 @@ import (
 	"github.com/hardcore-os/plato/common/discovery"
 )
 
+// ip config会将在etcd中监听到的数据放入这里
 var eventChan chan *Event
 
 func EventChan() <-chan *Event {
@@ -21,10 +22,11 @@ const (
 
 // 存放我们要统计的数值
 type Event struct {
-	Type         EventType
-	IP           string
-	Port         string
-	ConnectNum   float64
+	Type       EventType
+	IP         string
+	Port       string
+	ConnectNum float64
+	//字节总数
 	MessageBytes float64
 }
 

@@ -16,6 +16,7 @@ type Response struct {
 }
 
 // GetIpInfoList API 适配应用层
+// 入参的两种contxt都是Hertz的
 func GetIpInfoList(c context.Context, ctx *app.RequestContext) {
 	//捕捉异常。在这里不捕捉异常只会使本次调用错误，不会导致整个ip configÍ奔溃
 	defer func() {
