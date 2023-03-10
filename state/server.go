@@ -29,7 +29,7 @@ func RunMain(path string) {
 	s.RegisterService(func(server *grpc.Server) {
 		service.RegisterStateServer(server, &service.Service{CmdChannel: cmdChannel})
 	})
-	// 初始化RPC 客户端
+	// 初始化gateway RPC 客户端
 	client.Init()
 	// 启动时间轮
 	InitTimer()

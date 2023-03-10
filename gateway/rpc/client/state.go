@@ -13,6 +13,7 @@ import (
 var stateClient service.StateClient
 
 func initStateClient() {
+	//todo：是怎么找到state的服务的，没有看到ip配置
 	pCli, err := prpc.NewPClient(config.GetStateServiceName())
 	if err != nil {
 		panic(err)
@@ -31,8 +32,10 @@ func CancelConn(ctx *context.Context, endpoint string, connID uint64, Payload []
 }
 
 func SendMsg(ctx *context.Context, endpoint string, connID uint64, Payload []byte) error {
+	//设置超时时间
 	rpcCtx, _ := context.WithTimeout(*ctx, 100*time.Millisecond)
 	fmt.Println("sendMsg", connID, string(Payload))
+	//使用state grpc客户端调用服务
 	_, err := stateClient.SendMsg(rpcCtx, &service.StateRequest{
 		Endpoint: endpoint,
 		ConnID:   connID,

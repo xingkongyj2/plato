@@ -15,22 +15,33 @@ import (
 )
 
 // 全局对象
-var ep *ePool    // epoll池
+var ep *ePool // epoll池
+//已经连接的tcp数量
 var tcpNum int32 // 当前服务允许接入的最大tcp连接数
 
 type ePool struct {
+	//将客户端发来的连接请求放入这个通道
 	eChan  chan *connection
 	tables sync.Map
-	eSize  int
-	done   chan struct{}
+	//创建的epoll的个数
+	eSize int
+	done  chan struct{}
 
 	ln *net.TCPListener
 	f  func(c *connection, ep *epoller)
 }
 
+/**
+  监听的大致流程：
+    1.设置tcp连接端口
+    2.开启几个accept协程，并行监听客户端连接
+	3.将监听到的客户端挂在epoll下，使用epoll监听用户数据
+*/
 func initEpoll(ln *net.TCPListener, f func(c *connection, ep *epoller)) {
 	setLimit()
+	//创建epoll全局对象
 	ep = newEPool(ln, f)
+	//开启几个accept协程，并行监听客户端连接
 	ep.createAcceptProcess()
 	ep.startEPool()
 }
@@ -46,33 +57,39 @@ func newEPool(ln *net.TCPListener, cb func(c *connection, ep *epoller)) *ePool {
 	}
 }
 
-// 创建一个专门处理 accept 事件的协程，与当前cpu的核数对应，能够发挥最大功效
+// 创建多个专门处理 accept 事件的协程，与当前cpu的核数对应，能够发挥最大功效
 func (e *ePool) createAcceptProcess() {
+	//runtime.NumCPU()为cpu核数
 	for i := 0; i < runtime.NumCPU(); i++ {
 		go func() {
 			for {
-				conn, e := e.ln.AcceptTCP()
-				// 限流熔断
+				conn, err := e.ln.AcceptTCP()
+				// 限流熔断：连接达到上限了
+				// 可以返回一些信息告知用户
 				if !checkTcp() {
 					_ = conn.Close()
 					continue
 				}
+				//设置长连接
 				setTcpConifg(conn)
-				if e != nil {
-					if ne, ok := e.(net.Error); ok && ne.Temporary() {
+				if err != nil {
+					if ne, ok := err.(net.Error); ok && ne.Temporary() {
 						fmt.Errorf("accept temp err: %v", ne)
 						continue
 					}
-					fmt.Errorf("accept err: %v", e)
+					fmt.Errorf("accept err: %v", err)
 				}
+				//为这个连接分配一个连接对象
 				c := NewConnection(conn)
-				ep.addTask(c)
+				//将连接加入管道中，然后epoll从管道中取出连接进行挂载
+				e.addTask(c)
 			}
 		}()
 	}
 }
 
 func (e *ePool) startEPool() {
+	//创建eSize个epoll并行处理
 	for i := 0; i < e.eSize; i++ {
 		go e.startEProc()
 	}
@@ -91,8 +108,10 @@ func (e *ePool) startEProc() {
 			case <-e.done:
 				return
 			case conn := <-e.eChan:
+				//连接的tcp数量+1，但是要注意这个全局变量，要注意并发问题
 				addTcpNum()
 				fmt.Printf("tcpNum:%d\n", tcpNum)
+				//将管道中的连接挂载到epoll上，监听连接
 				if err := ep.add(conn); err != nil {
 					fmt.Printf("failed to add connection %v\n", err)
 					conn.Close() //登录未成功直接关闭连接
@@ -108,6 +127,7 @@ func (e *ePool) startEProc() {
 		case <-e.done:
 			return
 		default:
+			//epoll监听到一些连接发来数据
 			connections, err := ep.wait(200) // 200ms 一次轮询避免 忙轮询
 			if err != nil && err != syscall.EINTR {
 				fmt.Printf("failed to epoll wait %v\n", err)
@@ -117,6 +137,7 @@ func (e *ePool) startEProc() {
 				if conn == nil {
 					break
 				}
+				//使用回调函数进行处理客户端发来的数据
 				e.f(conn, ep)
 			}
 		}
@@ -127,7 +148,7 @@ func (e *ePool) addTask(c *connection) {
 	e.eChan <- c
 }
 
-// epoller 对象 轮询器
+// epoll 对象 轮询器
 type epoller struct {
 	fd            int
 	fdToConnTable sync.Map
@@ -188,7 +209,7 @@ func socketFD(conn *net.TCPConn) int {
 	return int(pfdVal.FieldByName("Sysfd").Int())
 }
 
-// 设置go 进程打开文件数的限制
+// 设置go进程打开文件数的限制
 func setLimit() {
 	var rLimit syscall.Rlimit
 	if err := syscall.Getrlimit(syscall.RLIMIT_NOFILE, &rLimit); err != nil {

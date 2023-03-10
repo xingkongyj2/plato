@@ -6,8 +6,12 @@ import (
 )
 
 var nextConnID uint64 // 全局的分配变量值
+
+//每个连接分配一个连接对象
 type connection struct {
-	id   uint64 // 进程级别的生命周期
+	//每个连接的id
+	id uint64 // 进程级别的生命周期
+	//客户端的文件描述符
 	fd   int
 	e    *epoller
 	conn *net.TCPConn
@@ -23,7 +27,7 @@ func NewConnection(conn *net.TCPConn) *connection {
 }
 func (c *connection) Close() {
 	ep.tables.Delete(c.id)
-	if c.e != nil{
+	if c.e != nil {
 		c.e.fdToConnTable.Delete(c.fd)
 	}
 	err := c.conn.Close()
