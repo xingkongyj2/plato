@@ -16,7 +16,7 @@ import (
 
 // 全局对象
 var ep *ePool // epoll池
-// 已经连接的tcp数量
+//已经连接的tcp数量
 var tcpNum int32 // 当前服务允许接入的最大tcp连接数
 
 type ePool struct {
@@ -31,13 +31,11 @@ type ePool struct {
 	f  func(c *connection, ep *epoller)
 }
 
-/*
-*
-
-	  监听的大致流程：
-	    1.设置tcp连接端口
-	    2.开启几个accept协程，并行监听客户端连接
-		3.将监听到的客户端挂在epoll下，使用epoll监听用户数据
+/**
+  监听的大致流程：
+    1.设置tcp连接端口
+    2.开启几个accept协程，并行监听客户端连接
+	3.将监听到的客户端挂在epoll下，使用epoll监听用户数据
 */
 func initEpoll(ln *net.TCPListener, f func(c *connection, ep *epoller)) {
 	setLimit()
