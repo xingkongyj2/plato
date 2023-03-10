@@ -5,6 +5,7 @@ const (
 )
 
 type stateWindow struct {
+	//使用一个滑动窗口，保存多个state
 	stateQueue []*Stat
 	statChan   chan *Stat
 	sumStat    *Stat

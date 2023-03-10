@@ -5,8 +5,9 @@ import (
 )
 
 type EndpointInfo struct {
-	IP       string                 `json:"ip"`
-	Port     string                 `json:"port"`
+	IP   string `json:"ip"`
+	Port string `json:"port"`
+	//这是一种扩展式的写法，业务方以后增加什么字段了，直接插入就好了
 	MetaData map[string]interface{} `json:"meta"`
 }
 

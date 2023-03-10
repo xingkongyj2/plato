@@ -10,9 +10,11 @@ import (
 // RunMain 启动web容器
 func RunMain(path string) {
 	config.Init(path)
-	//etdc
+	//设置数据源。监听数据
 	source.Init() //数据源要优先启动,收集数据
 	domain.Init() // 初始化调度层
+
+	//开启http服务
 	s := server.Default(server.WithHostPorts(":6789"))
 	s.GET("/ip/list", GetIpInfoList)
 	s.Spin()
