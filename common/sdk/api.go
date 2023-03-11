@@ -73,7 +73,7 @@ func (chat *Chat) Send(msg *Message) {
 	chat.conn.send(message.CmdType_UP, palyload)
 }
 
-//Close close chat
+// Close close chat
 func (chat *Chat) Close() {
 	chat.conn.close()
 	close(chat.closeChan)
@@ -88,12 +88,11 @@ func (chat *Chat) ReConn() {
 	chat.reConn()
 }
 
-//Recv receive message
+// Recv receive message
 func (chat *Chat) Recv() <-chan *Message {
 	return chat.conn.recv()
 }
 
-//todo
 func (chat *Chat) loop() {
 Loop: //goto语句
 	for {
