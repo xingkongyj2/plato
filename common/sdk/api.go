@@ -1,6 +1,7 @@
 package sdk
 
 import (
+	"fmt"
 	"net"
 	"sync"
 	"time"
@@ -20,13 +21,10 @@ const (
 )
 
 type Chat struct {
-	//用户名
-	Nick      string
-	UserID    string
-	SessionID string
-	//用户的IP、Port
-	conn *connect
-	//传递关闭连接的管道
+	Nick             string
+	UserID           string
+	SessionID        string
+	conn             *connect
 	closeChan        chan struct{}
 	MsgClientIDTable map[string]uint64
 	sync.RWMutex
@@ -41,12 +39,7 @@ type Message struct {
 	Session    string
 }
 
-/*
-*
-创建服务聊天服务
-*/
 func NewChat(ip net.IP, port int, nick, userID, sessionID string) *Chat {
-	//初始化Chat对象
 	chat := &Chat{
 		Nick:             nick,
 		UserID:           userID,
@@ -62,9 +55,10 @@ func NewChat(ip net.IP, port int, nick, userID, sessionID string) *Chat {
 }
 func (chat *Chat) Send(msg *Message) {
 	data, _ := json.Marshal(msg)
+	key := fmt.Sprintf("%d", chat.conn.connID)
 	upMsg := &message.UPMsg{
 		Head: &message.UPMsgHead{
-			ClientID: chat.getClientID(msg.Session),
+			ClientID: chat.getClientID(key),
 			ConnID:   chat.conn.connID,
 		},
 		UPMsgBody: data,
@@ -73,7 +67,15 @@ func (chat *Chat) Send(msg *Message) {
 	chat.conn.send(message.CmdType_UP, palyload)
 }
 
-// Close close chat
+func (chat *Chat) GetCurClientID() uint64 {
+	key := fmt.Sprintf("%d", chat.conn.connID)
+	if id, ok := chat.MsgClientIDTable[key]; ok {
+		return id
+	}
+	return 0
+}
+
+//Close close chat
 func (chat *Chat) Close() {
 	chat.conn.close()
 	close(chat.closeChan)
@@ -88,20 +90,17 @@ func (chat *Chat) ReConn() {
 	chat.reConn()
 }
 
-// Recv receive message
+//Recv receive message
 func (chat *Chat) Recv() <-chan *Message {
 	return chat.conn.recv()
 }
 
 func (chat *Chat) loop() {
-Loop: //goto语句
+Loop:
 	for {
-		//select就是用来监听和channel有关的IO操作，当 IO 操作发生时，触发相应的动作
 		select {
-		// 如果chan1成功读到数据，则进行该case处理语句
 		case <-chat.closeChan:
 			return
-		//
 		default:
 			mc := &message.MsgCmd{}
 			data, err := tcp.ReadData(chat.conn.conn)
@@ -118,6 +117,7 @@ Loop: //goto语句
 				msg = handAckMsg(chat.conn, mc.Payload)
 			case message.CmdType_Push:
 				msg = handPushMsg(chat.conn, mc.Payload)
+
 			}
 			chat.conn.recvChan <- msg
 		}
@@ -131,8 +131,7 @@ func (chat *Chat) getClientID(sessionID string) uint64 {
 	if id, ok := chat.MsgClientIDTable[sessionID]; ok {
 		res = id
 	}
-	res++
-	chat.MsgClientIDTable[sessionID] = res
+	chat.MsgClientIDTable[sessionID] = res + 1
 	return res
 }
 
@@ -164,6 +163,10 @@ func (chat *Chat) reConn() {
 
 func (chat *Chat) heartbeat() {
 	tc := time.NewTicker(1 * time.Second)
+	defer func() {
+		chat.heartbeat()
+	}()
+loop:
 	for {
 		select {
 		case <-chat.closeChan:
@@ -176,7 +179,10 @@ func (chat *Chat) heartbeat() {
 			if err != nil {
 				panic(err)
 			}
-			chat.conn.send(message.CmdType_Heartbeat, palyload)
+			err = chat.conn.send(message.CmdType_Heartbeat, palyload)
+			if err != nil {
+				goto loop
+			}
 		}
 	}
 }
