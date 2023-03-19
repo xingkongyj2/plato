@@ -41,10 +41,10 @@ type Message struct {
 	Session    string
 }
 
-/**
+/*
+*
 创建服务聊天服务
 */
-//todo：
 func NewChat(ip net.IP, port int, nick, userID, sessionID string) *Chat {
 	//初始化Chat对象
 	chat := &Chat{

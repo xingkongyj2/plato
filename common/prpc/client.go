@@ -34,6 +34,7 @@ func NewPClient(serviceName string, interceptors ...grpc.UnaryClientInterceptor)
 		interceptors: interceptors,
 	}
 
+	//获取etcd实例
 	if p.d == nil {
 		dis, err := plugin.GetDiscovInstance()
 		if err != nil {
@@ -42,7 +43,7 @@ func NewPClient(serviceName string, interceptors ...grpc.UnaryClientInterceptor)
 
 		p.d = dis
 	}
-
+	//todo
 	resolver.Register(presolver.NewDiscovBuilder(p.d))
 
 	conn, err := p.dial()
@@ -74,5 +75,6 @@ func (p *PClient) dial() (*grpc.ClientConn, error) {
 
 	ctx, _ := context.WithTimeout(context.Background(), dialTimeout)
 
+	//todo：grpc是如何将discov:///%v解析为正确的ip和port的？
 	return grpc.DialContext(ctx, fmt.Sprintf("discov:///%v", p.serviceName), options...)
 }

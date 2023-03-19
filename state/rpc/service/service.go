@@ -10,11 +10,14 @@ const (
 )
 
 type CmdContext struct {
-	Ctx      *context.Context
-	Cmd      int32
+	Ctx *context.Context
+	//gateway连接发生错误发送CancelConnCmd，连接没问题就发送SendMsgCmd
+	Cmd int32
+	//发消息过来的gateway的grpc服务地址
 	Endpoint string
 	ConnID   uint64
-	Payload  []byte
+	//客户端发来的整个协议数据
+	Payload []byte
 }
 
 type Service struct {

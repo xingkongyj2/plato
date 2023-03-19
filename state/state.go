@@ -50,6 +50,7 @@ func (c *connState) reSetHeartTimer() {
 	})
 }
 
+// 定时器到期后调用这个函数
 // 为了实现重连，这里不要立即释放连接的状态, 给予10s的延迟时间
 func clearState(connID uint64) {
 	if data, ok := connToStateTable.Load(connID); ok {

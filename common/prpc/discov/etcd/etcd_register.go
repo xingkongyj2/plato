@@ -114,6 +114,7 @@ func (r *Register) registerServiceOrKeepAlive(ctx context.Context) {
 	}
 }
 
+// 真正的注册etcd服务
 func (r *Register) registerService(ctx context.Context, service *registerService) {
 	leaseGrantResp, err := r.cli.Grant(ctx, r.keepAliveInterval)
 	if err != nil {
