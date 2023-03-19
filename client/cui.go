@@ -258,7 +258,6 @@ func RunMain() {
 	if err := g.SetKeybinding("main", gocui.KeyEnter, gocui.ModNone, viewUpdate); err != nil {
 		log.Panicln(err)
 	}
-	//todo：下面的四个函数是干什么的
 	//往上翻
 	if err := g.SetKeybinding("main", gocui.KeyPgup, gocui.ModNone, viewUpScroll); err != nil {
 		log.Panicln(err)

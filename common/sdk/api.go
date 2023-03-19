@@ -38,7 +38,8 @@ type Message struct {
 	Session    string
 }
 
-/**
+/*
+*
 创建服务聊天服务
 */
 func NewChat(ip net.IP, port int, nick, userID, sessionID string) *Chat {

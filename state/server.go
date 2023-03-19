@@ -42,6 +42,7 @@ func RunMain(path string) {
 func cmdHandler() {
 	for cmdCtx := range cmdChannel {
 		switch cmdCtx.Cmd {
+		//gateway连接发生异常，state需要释放相关资源
 		case service.CancelConnCmd:
 			fmt.Printf("cancelconn endpoint:%s, fd:%d, data:%+v", cmdCtx.Endpoint, cmdCtx.ConnID, cmdCtx.Payload)
 		case service.SendMsgCmd:
@@ -50,6 +51,7 @@ func cmdHandler() {
 			if err != nil {
 				fmt.Printf("SendMsgCmd:err=%s\n", err.Error())
 			}
+			//处理客户端发来的协议消息
 			msgCmdHandler(cmdCtx, msgCmd)
 		}
 	}
