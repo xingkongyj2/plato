@@ -22,9 +22,12 @@ perf：./plato perf
 
 
 # 项目启动
+./plato gateway --config=./plato.yaml
+./plato state --config=./plato.yaml
+./plato client --config=./plato.yaml
 
 # 性能测试
-
+./plato perf --config=./plato.yaml
 
 # 接口
 api.go::NewChat

@@ -16,6 +16,7 @@ var connToStateTable sync.Map
 
 type connState struct {
 	sync.RWMutex
+	//不同的计时器不同的作用
 	heartTimer  *timingwheel.Timer
 	reConnTimer *timingwheel.Timer
 	msgTimer    *timingwheel.Timer
